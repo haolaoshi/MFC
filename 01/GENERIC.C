@@ -1,156 +1,142 @@
-//---------------------------------------------------------------------
-//           Generic - ¥Ü½d Win32 µ{¦¡ªº°òÂ¦¼gªk
-//                   Top Studio * J.J.Hou
-// ÀÉ¦W     : generic.c
-// §@ªÌ     : «J«T³Ç
-// ½sÄ¶Ápµ² : ½Ğ°Ñ¦Ò generic.mak
-//---------------------------------------------------------------------
+/**
+1ï¼Œç¨‹åºåˆå§‹åŒ–è¿‡ç¨‹ä¸­è°ƒç”¨CreateWindow
+çª—å£äº§ç”Ÿåé€å‡ºWM_CREATE ç»™çª—å£å‡½æ•°ï¼Œä½œåˆå§‹åŒ–æ“ä½œ
+2ï¼Œç¨‹åºå¾ªç¯ä½¿ç”¨GetMessageä»æ¶ˆæ¯é˜Ÿåˆ— ä¸­æŠ“å–æ¶ˆæ¯
+å¦‚æœæ”¶åˆ°WM_QUITï¼ŒGetMessageè¿”å›0çº¿æŸå¾ªç¯ï¼›
+3ï¼ŒDispatchMessage åˆ©ç”¨USERæ¨¡å—ååŠ©æŠŠæ¶ˆæ¯åˆ†å‘ç»™çª—å£å‡½æ•°
+4ï¼Œç¨‹åºåœ¨2-3å¾ªç¯
+5ï¼Œå½“ç”¨æˆ·æŒ‰ä¸‹CloseæŒ‡ä»¤æ—¶ï¼Œç³»ç»Ÿé€å‡ºWM_CLOSE
+é€šå¸¸çª—å£å‡½æ•°ä¸æ‹¦æˆªï¼Œç”±DefWindowProcå¤„ç†
+6ï¼ŒDefWindowProcæ”¶åˆ°åè°ƒç”¨DestroyWindowæŠŠçª—å£æ¸…é™¤
+æ­¤æ—¶é€å‡ºWM_DESTROY
+7ï¼Œç¨‹åºå¯¹WM_DESTROYçš„ååº”æ˜¯è°ƒç”¨PostQuitMessage
+8ï¼ŒPostQuitMessageåªé€å‡ºWM_QUITæ¶ˆæ¯ï¼Œè¢«GetMessageè·å¾—
+ç¨‹åºç»“æŸï¼›
 
-#include <windows.h>   // ¨C¤@­Ó Windows µ{¦¡³£»İ­n§t¤J¦¹ÀÉ
-#include "resource.h"  // ¤º§t¦U­Ó resource IDs
-#include "generic.h"   // ¥»µ{¦¡¤§§t¤JÀÉ
 
-HINSTANCE _hInst;      // Instance handle
-HWND      _hWnd;
 
-char _szAppName[] = "Generic";    // µ{¦¡¦WºÙ
-char _szTitle[]   = "Generic Sample Application"; // µøµ¡¼ĞÃD
 
-//---------------------------------------------------------------------
-// WinMain - µ{¦¡¶i¤JÂI
-//---------------------------------------------------------------------
-int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                     LPSTR lpCmdLine,     int nCmdShow)
-{
-MSG msg;
+**/
+#include <windows.h>
+#include "resource.h"    //å„ä¸ªIDs
+#include "generic.h"  	  	
 
-  UNREFERENCED_PARAMETER(lpCmdLine);      // Á×§K½sÄ¶®ÉªºÄµ§i
+HINSTANCE _hInst;
+HWND 	_hWnd;
 
-  if (!hPrevInstance)
-      if (!InitApplication(hInstance))
-          return (FALSE);
+char _szAppName[] = "Generic";
+char _szTitle[] = "Generic Sample Application";
 
-  if (!InitInstance(hInstance, nCmdShow))
-      return (FALSE);
-
-  while (GetMessage(&msg, NULL, 0, 0)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-  }
-
-  return (msg.wParam); // ¶Ç¦^ PostQuitMessage ªº°Ñ¼Æ
-}
-//---------------------------------------------------------------------
-// InitApplication - µù¥Uµøµ¡Ãş§O
-//---------------------------------------------------------------------
+/**ç¨‹åºå…¥å£**/
+int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPreInstance,
+	LPSTR lpCmdLine, int nCmdShow)
+	{
+		MSG msg;
+		UNREFERENCED_PARAMETER(lpCmdLine);
+		
+		if(!hPreInstance)
+			if(!InitApplication(hInstance)) /*1 æ³¨å†Œçª—å£ç±» RegisterClass*/
+				return (FALSE);
+		if(!InitInstance(hInstance,nCmdShow))/*2 äº§ç”Ÿçª—å£ CreateWindow*/
+			return (FALSE);
+		
+		while(GetMessage(&msg,NULL,0,0)){
+			TranslateMessage(&msg);//ç¿»è¯‘æ¶ˆæ¯
+			DispatchMessage(&msg);//åˆ†å‘æ¶ˆæ¯
+		}
+		return (msg.wParam);//ä¼ å›PostQuitMessageçš„å‚æ•°
+	}
+	
+	
+/**1 æ³¨å†Œçª—å£ç±» RegisterClass**/
 BOOL InitApplication(HINSTANCE hInstance)
 {
-WNDCLASS  wc;
-
-  wc.style         = CS_HREDRAW | CS_VREDRAW;
-  wc.lpfnWndProc   = (WNDPROC)WndProc;     // µøµ¡¨ç¦¡
-  wc.cbClsExtra    = 0;
-  wc.cbWndExtra    = 0;
-  wc.hInstance     = hInstance;
-  wc.hIcon         = LoadIcon(hInstance, "jjhouricon");
-  wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-  wc.hbrBackground = GetStockObject(WHITE_BRUSH);  // µøµ¡­I´ºÃC¦â
-  wc.lpszMenuName  = "GenericMenu";                // .RC ©Ò©w¸qªºªí³æ
-  wc.lpszClassName = _szAppName;
-
-  return (RegisterClass(&wc));
+	WNDCLASS wc;
+	
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.lpfnWndProc = (WNDPROC)WndProc;//3 çª—å£å‡½æ•°
+	wc.cbClsExtra = 0;
+	wc.cbWndExtra = 0;
+	wc.hInstance = hInstance;
+	wc.hIcon = LoadIcon(hInstance,"jjhicon");
+	wc.hCursor = LoadCursor(NULL,IDC_ARROW);
+	wc.hbrBackground = GetStockObject(WHITE_BRUSH);//çª—å£åå°é¢œè‰²
+	wc.lpszMenuName = "GenericMenu";
+	wc.lpszClassName = _szAppName;
+	
+	return (RegisterClass(&wc));
+	
 }
-//---------------------------------------------------------------------
-// InitInstance - ²£¥Íµøµ¡
-//---------------------------------------------------------------------
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+/**2 äº§ç”Ÿçª—å£ CreateWindow**/
+BOOL InitInstance(HINSTANCE hInstance,int nCmdShow)
 {
-  _hInst = hInstance; // Àx¦s¬°¥ş°ìÅÜ¼Æ¡A¤è«K¨Ï¥Î¡C
-
-  _hWnd = CreateWindow(
-                       _szAppName,
-                       _szTitle,
-                       WS_OVERLAPPEDWINDOW,
-                       CW_USEDEFAULT,
-                       CW_USEDEFAULT,
-                       CW_USEDEFAULT,
-                       CW_USEDEFAULT,
-                       NULL,
-                       NULL,
-                       hInstance,
-                       NULL
-                      );
-
-  if (!_hWnd)
-      return (FALSE);
-
-  ShowWindow(_hWnd, nCmdShow); // Åã¥Üµøµ¡
-  UpdateWindow(_hWnd);         // °e¥X WM_PAINT
-  return (TRUE);
+	_hInst = hInstance;
+	_hWnd = CreateWindow(
+		_szAppName,
+		_szTitle,
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		NULL,
+		NULL,
+		hInstance,
+		NULL
+		);
+	if(!_hWnd)
+		return (FALSE);
+	
+	ShowWindow(_hWnd,nCmdShow);//æ˜¾ç¤º çª—å£
+	UpdateWindow(_hWnd); // å‘é€WM_PAINT
+	return (TRUE);
+	
 }
-//---------------------------------------------------------------------
-// WndProc - µøµ¡¨ç¦¡
-//---------------------------------------------------------------------
-LRESULT CALLBACK WndProc(HWND hWnd,     UINT message,
-                         WPARAM wParam, LPARAM lParam)
+/**3 çª—å£å‡½æ•° **/
+LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
-int wmId, wmEvent;
-
-  switch (message) {
-    case WM_COMMAND:
-
-         wmId    = LOWORD(wParam);
-         wmEvent = HIWORD(wParam);
-
-         switch (wmId) {
-           case IDM_ABOUT:
-                DialogBox(_hInst,
-                          "AboutBox",     // ¹ï¸Ü²°¸ê·½¦WºÙ
-                          hWnd,           // ¤÷µøµ¡
-                          (DLGPROC)About  // ¹ï¸Ü²°¨ç¦¡¦WºÙ
-                         );
-                break;
-
-           case IDM_EXIT:
-                // ¨Ï¥ÎªÌ·Qµ²§ôµ{¦¡¡C³B²z¤è¦¡»P WM_CLOSE ¬Û¦P¡C
-                DestroyWindow (hWnd);
-                break;
-
-           default:
-                return (DefWindowProc(hWnd, message, wParam, lParam));
-         }
-         break;
-
-    case WM_DESTROY:  // µøµ¡¤w¸g³QºR·´ (µ{¦¡§Y±Nµ²§ô)¡C
-         PostQuitMessage(0);
-         break;
-
-    default:
-         return (DefWindowProc(hWnd, message, wParam, lParam));
-  }
-  return (0);
+	int wmId,wmEvent;
+	switch(message){
+		case WM_COMMAND:
+			wmId = LOWORD(wParam);
+			wmEvent = HIWORD(wParam);
+			switch(wmId){
+				case IDM_ABOUT:
+					DialogBox(_hInst,
+							"AboutBox", //å¯¹è¯æ¡†èµ„æºå
+							hWnd,	//çˆ¶çª—å£
+							(DLGPROC)About  //å¯¹è¯æ¡†å‡½æ•°
+							);
+					break;
+				case IDM_EXIT://æƒ³ç»“æŸ å‡½æ•° ä¸WM_CLOSEç›¸åŒ
+					DestroyWindow(hWnd);
+					break;
+				default:
+					return (DefWindowProc(hWnd,message,wParam,lParam));
+			}
+			break;
+		case WM_DESTROY://çª—å£å·²ç»è¢«é”€æ¯ï¼Œç¨‹åºå³å°†ç»“æŸ 
+			//PostQuitMessage(0);
+			break;
+		default://Windowé»˜è®¤çš„æ¶ˆæ¯å¤„ç†å‡½æ•° 
+			return (DefWindowProc(hWnd,message,wParam,lParam));
+	}
+	return (0);
 }
-//---------------------------------------------------------------------
-// About - ¹ï¸Ü²°¨ç¦¡
-//---------------------------------------------------------------------
-LRESULT CALLBACK About(HWND hDlg,     UINT message,
-                       WPARAM wParam, LPARAM lParam)
+/**å¯¹è¯æ¡†å‡½æ•°**/
+LRESULT CALLBACK About(HWND hDlg,UINT message,WPARAM wParam,LPARAM lParam)
 {
-  UNREFERENCED_PARAMETER(lParam);      // Á×§K½sÄ¶®ÉªºÄµ§i
-
-  switch (message) {
-    case WM_INITDIALOG:
-         return (TRUE);      // TRUE ªí¥Ü§Ú¤w³B²z¹L³o­Ó°T®§
-
-    case WM_COMMAND:
-         if (LOWORD(wParam) == IDOK
-             || LOWORD(wParam) == IDCANCEL) {
-             EndDialog(hDlg, TRUE);
-             return (TRUE);  // TRUE ªí¥Ü§Ú¤w³B²z¹L³o­Ó°T®§
-         }
-         break;
-  }
-  return (FALSE); // FALSE ªí¥Ü§Ú¨S¦³³B²z³o­Ó°T®§
+	UNREFERENCED_PARAMETER(lParam);
+	switch(message){
+		case WM_INITDIALOG:
+			return (TRUE);
+		case WM_COMMAND:
+			if(LOWORD(wParam) == IDOK
+				|| LOWORD(wParam) == IDCANCEL) {
+				EndDialog(hDlg,TRUE);
+				return (TRUE);//è¡¨ç¤º å·²ç»å¤„ç†è¿‡è¿™ä¸ªæ¶ˆæ¯
+			}
+			break;
+	}
+	return (FALSE); //è¡¨ç¤º æˆ‘æ²¡æœ‰å¤„ç†è¿™ä¸ªæ¶ˆæ¯
 }
-//------------------------ end of file ------------------------------
-

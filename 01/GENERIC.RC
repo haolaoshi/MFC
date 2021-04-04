@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------
-// �ɦW : generic.rc
+// 郎 : generic.rc
 //---------------------------------------------------------------------
 #include "windows.h"
 #include "resource.h"
 
-jjhouricon ICON    DISCARDABLE     "jjhour.ico"
+jjhouricon ICON    DISCARDABLE     "jjh.ico"
 
 GenericMenu MENU DISCARDABLE
 BEGIN
