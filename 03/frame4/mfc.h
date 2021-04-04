@@ -53,7 +53,8 @@ public:
 	CObject::CObject(){}
 	CObject::~CObject(){}
 	virtual CRuntimeClass* GetRuntimeClass() const;
-	static CRuntimeClass classCObject; 
+	static CRuntimeClass classCObject;
+	BOOL 	IsKindOf(const CRuntimeClass* pClass) const;
 };
 
 class CCmdTarget : public CObject
