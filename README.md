@@ -1,4 +1,6 @@
 git add
 
 01	Generic.mak
-	makefile:
+	makefile:make/nmake is preffered.
+	One time is not Enough!
+Dynamic Creation!
